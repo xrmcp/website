@@ -3,6 +3,10 @@
 import { motion } from 'framer-motion'
 import { Terminal, Package, Play, ArrowRight } from 'lucide-react'
 
+interface HowItWorksProps {
+  highlightedSteps: string[]
+}
+
 const steps = [
   {
     number: '01',
@@ -44,7 +48,7 @@ xrmcp tool ls
   },
 ]
 
-export function HowItWorks() {
+export function HowItWorks({ highlightedSteps }: HowItWorksProps) {
   return (
     <section className="relative py-12 pt-4 overflow-hidden">
       {/* Background effect */}
@@ -100,8 +104,11 @@ export function HowItWorks() {
                       <div className="h-3 w-3 rounded-full bg-green-500/60" />
                       <span className="ml-2 font-mono text-xs text-muted-foreground">terminal</span>
                     </div>
-                    <pre className="p-4 text-sm font-mono text-muted-foreground overflow-x-auto">
-                      <code>{step.code}</code>
+                    <pre className="overflow-x-auto p-4 font-mono text-sm leading-6">
+                      <code
+                        className="font-mono"
+                        dangerouslySetInnerHTML={{ __html: highlightedSteps[index] ?? step.code }}
+                      />
                     </pre>
                   </div>
                 </div>

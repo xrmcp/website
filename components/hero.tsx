@@ -5,43 +5,46 @@ import Link from 'next/link'
 import { ArrowRight, Check, Copy, Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
+import { terminalCommands } from '@/lib/homepage-code'
 
-const terminalCommands = [
-  { text: 'brew tap xrmcp/homebrew-tap', prefix: '$' },
-  { text: 'brew install xrmcp', prefix: '$' },
-  {text: "sudo dpkg -i xrmcp_<version>_amd64.deb", prefix: '$'},
-  { text: 'scoop bucket add xrmcp https://github.com/xrmcp/homebrew-tap', prefix: '$' },
-  { text: 'scoop install xrmcp', prefix: '$' },
-  { text: 'xrmcp server start -t http -p 8000', prefix: '$' },
-  { text: 'xrmcp tool search jira', prefix: '$' },
-  { text: 'xrmcp tool install jira/get_jira_ticket', prefix: '$' },
-  { text: 'xrmcp tool install ./my-tool.xrmcp.json', prefix: '$' },
-  
-  { text: 'Connect your AI agent to the runtime', prefix: '#' },
-]
+interface HeroProps {
+  previewHtml: string
+  terminalCommandsHtml: string[]
+}
 
-function TerminalShowcase() {
+interface TerminalShowcaseProps {
+  highlightedCommands: string[]
+}
+
+function TerminalShowcase({ highlightedCommands }: TerminalShowcaseProps) {
   const [currentLine, setCurrentLine] = useState(0)
-  const [displayedText, setDisplayedText] = useState('')
+  const [visibleChars, setVisibleChars] = useState(0)
 
   useEffect(() => {
     const command = terminalCommands[currentLine]
     let charIndex = 0
+    let nextLineTimeout: ReturnType<typeof setTimeout> | undefined
+
+    setVisibleChars(0)
 
     const typingInterval = setInterval(() => {
-      if (charIndex <= command.text.length) {
-        setDisplayedText(command.text.slice(0, charIndex))
-        charIndex++
+      if (charIndex < command.text.length) {
+        charIndex += 1
+        setVisibleChars(charIndex)
       } else {
         clearInterval(typingInterval)
-        setTimeout(() => {
+        nextLineTimeout = setTimeout(() => {
           setCurrentLine((prev) => (prev + 1) % terminalCommands.length)
-          setDisplayedText('')
         }, 1500)
       }
     }, 50)
 
-    return () => clearInterval(typingInterval)
+    return () => {
+      clearInterval(typingInterval)
+      if (nextLineTimeout) {
+        clearTimeout(nextLineTimeout)
+      }
+    }
   }, [currentLine])
 
   const command = terminalCommands[currentLine]
@@ -50,6 +53,11 @@ function TerminalShowcase() {
     a.text.length > b.text.length ? a : b
   )
   const textClassName = isComment ? 'text-muted-foreground/50 italic' : 'text-foreground'
+  const currentCommandHtml = highlightedCommands[currentLine] ?? command.text
+  const displayedText = command.text.slice(0, visibleChars)
+  const revealPercent = command.text.length === 0 ? 0 : (visibleChars / command.text.length) * 100
+  const revealWidth = `${revealPercent}%`
+  const cursorOffset = visibleChars === 0 ? '0px' : 'calc(100% - 0.125rem)'
 
   return (
     <div className="w-full px-4 sm:px-0">
@@ -65,13 +73,13 @@ function TerminalShowcase() {
             />
           </span>
           <span className="relative hidden sm:block">
-            <span className="invisible whitespace-nowrap">{longestCommand.text}</span>
-            <span className={`absolute left-0 top-0 whitespace-nowrap ${textClassName}`}>
-              {displayedText}
-              <motion.span
-                animate={{ opacity: [1, 0] }}
-                transition={{ duration: 0.5, repeat: Infinity, repeatType: 'reverse' }}
-                className="ml-0.5 inline-block h-4 w-1.5 align-middle bg-primary"
+            <span aria-hidden="true" className="invisible whitespace-nowrap">
+              {longestCommand.text}
+            </span>
+            <span className="absolute left-0 top-0 overflow-hidden whitespace-nowrap" style={{ width: revealWidth }}>
+              <span
+                className={`block whitespace-nowrap ${textClassName}`}
+                dangerouslySetInnerHTML={{ __html: currentCommandHtml }}
               />
             </span>
           </span>
@@ -81,7 +89,7 @@ function TerminalShowcase() {
   )
 }
 
-export function Hero() {
+export function Hero({ previewHtml, terminalCommandsHtml }: HeroProps) {
   
   return (
     <section className="relative min-h-[90vh]  pt-30">
@@ -168,7 +176,7 @@ export function Hero() {
             transition={{ delay: 0.5, duration: 0.7 }}
             className="mt-4"
           >
-            <TerminalShowcase />
+            <TerminalShowcase highlightedCommands={terminalCommandsHtml} />
           </motion.div>
 
 
@@ -178,7 +186,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.7 }}
-            className="mt-6 w-full max-w-3xl"
+            className="my-6 w-full max-w-3xl"
           >
 
             <div className="gradient-border rounded-xl">
@@ -189,22 +197,11 @@ export function Hero() {
                   <div className="h-3 w-3 rounded-full bg-green-500/60" />
                   <span className="ml-2 font-mono text-xs text-muted-foreground">get_blog_post.xrmcp.json</span>
                 </div>
-                <pre className="overflow-x-auto p-4 text-left font-mono text-sm text-muted-foreground">
-                  <code>{`{
-  "tool": {
-    "schemaVersion": "xrmcp.v0.1.0",
-    "name": "get_blog_post",
-    "description": "Fetch a blog post by its ID.",
-    "inputSchema": {...},
-    "executions": [{
-      "type": "api",
-      "request": {
-        "method": "GET",
-        "url": "https://api.example.com/posts/{{input.postId}}"
-      }
-    }]
-  }
-}`}</code>
+                <pre className="overflow-x-auto p-4 text-left font-mono text-sm leading-6">
+                  <code
+                    className="font-mono"
+                    dangerouslySetInnerHTML={{ __html: previewHtml }}
+                  />
                 </pre>
               </div>
             </div>
