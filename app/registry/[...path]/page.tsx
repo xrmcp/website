@@ -86,6 +86,11 @@ export default async function ToolDetailPage({ params }: Props) {
     structure: 'inline',
   })
   const installCommand = `xrmcp tool install ${tool.path.replace('.xrmcp.json', '')}`
+  const installCommandHtml = await codeToHtml(installCommand, {
+    lang: 'bash',
+    theme: 'github-dark-default',
+    structure: 'inline',
+  })
   const downloadUrl = `/api/tools/manifest?path=${encodeURIComponent(tool.path)}&download=true`
   const githubManifestUrl = `https://github.com/xrmcp/registry/blob/main/xrmcp-registry/tools/${tool.path}`
 
@@ -162,9 +167,11 @@ export default async function ToolDetailPage({ params }: Props) {
               Install via CLI
             </h2>
             <div className="flex items-center gap-2 rounded-lg border border-border/50 bg-card/50 px-4 py-3">
-              <code className="flex-1 font-mono text-sm text-foreground">
-                <span className="text-primary">$</span> {installCommand}
-              </code>
+              <span className="font-mono text-sm text-primary">$</span>
+              <code
+                className="flex-1 overflow-x-auto font-mono text-sm leading-6"
+                dangerouslySetInnerHTML={{ __html: installCommandHtml }}
+              />
               <CopyButton text={installCommand} />
             </div>
           </div>
