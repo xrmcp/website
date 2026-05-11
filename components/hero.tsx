@@ -46,29 +46,37 @@ function TerminalShowcase() {
 
   const command = terminalCommands[currentLine]
   const isComment = command.prefix === '#'
-  // Find the longest command to set fixed width
-  const longestCommand = terminalCommands.reduce((a, b) => 
+  const longestCommand = terminalCommands.reduce((a, b) =>
     a.text.length > b.text.length ? a : b
   )
+  const textClassName = isComment ? 'text-muted-foreground/50 italic' : 'text-foreground'
 
   return (
-    <div
-      className="inline-flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 px-5 py-3 font-mono text-sm backdrop-blur-sm"
-    >
-      <span className={isComment ? 'text-muted-foreground/50' : 'text-primary'}>{command.prefix}</span>
-      <span className="relative">
-        {/* Invisible text to maintain fixed width */}
-        <span className="invisible">{longestCommand.text}</span>
-        {/* Actual animated text positioned absolutely */}
-        <span className={`absolute left-0 top-0 whitespace-nowrap ${isComment ? 'text-muted-foreground/50 italic' : 'text-foreground'}`}>
-          {displayedText}
-          <motion.span
-            animate={{ opacity: [1, 0] }}
-            transition={{ duration: 0.5, repeat: Infinity, repeatType: 'reverse' }}
-            className="inline-block w-1.5 h-4 bg-primary ml-0.5 align-middle"
-          />
-        </span>
-      </span>
+    <div className="w-full px-4 sm:px-0">
+      <div className="mx-auto flex w-full max-w-3xl items-start gap-3 rounded-lg border border-border/50 bg-card/50 px-4 py-3 text-left font-mono text-sm backdrop-blur-sm sm:px-5">
+        <span className={isComment ? 'text-muted-foreground/50' : 'text-primary'}>{command.prefix}</span>
+        <div className="min-w-0 flex-1">
+          <span className={`block whitespace-pre-wrap break-words sm:hidden ${textClassName}`}>
+            {displayedText}
+            <motion.span
+              animate={{ opacity: [1, 0] }}
+              transition={{ duration: 0.5, repeat: Infinity, repeatType: 'reverse' }}
+              className="ml-0.5 inline-block h-4 w-1.5 align-middle bg-primary"
+            />
+          </span>
+          <span className="relative hidden sm:block">
+            <span className="invisible whitespace-nowrap">{longestCommand.text}</span>
+            <span className={`absolute left-0 top-0 whitespace-nowrap ${textClassName}`}>
+              {displayedText}
+              <motion.span
+                animate={{ opacity: [1, 0] }}
+                transition={{ duration: 0.5, repeat: Infinity, repeatType: 'reverse' }}
+                className="ml-0.5 inline-block h-4 w-1.5 align-middle bg-primary"
+              />
+            </span>
+          </span>
+        </div>
+      </div>
     </div>
   )
 }
@@ -76,7 +84,7 @@ function TerminalShowcase() {
 export function Hero() {
   
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-30">
+    <section className="relative min-h-[90vh]  pt-30">
       {/* Background gradient effects */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-1/2 left-1/4 h-[600px] w-[600px] rounded-full bg-primary/20 blur-[120px]" />
