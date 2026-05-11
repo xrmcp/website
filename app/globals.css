@@ -1,0 +1,102 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* xrMCP Dark Theme - always dark */
+  --background: #0f1117;
+  --foreground: #ffffff;
+  --card: #161922;
+  --card-foreground: #ffffff;
+  --popover: #161922;
+  --popover-foreground: #ffffff;
+  --primary: #7c6ff7;
+  --primary-foreground: #ffffff;
+  --secondary: #1e2130;
+  --secondary-foreground: #ffffff;
+  --muted: #1e2130;
+  --muted-foreground: #9ca3af;
+  --accent: #38bdf8;
+  --accent-foreground: #0f1117;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #2a2f3e;
+  --input: #2a2f3e;
+  --ring: #7c6ff7;
+  --radius: 0.625rem;
+  
+  /* Gradient colors */
+  --gradient-start: #7c6ff7;
+  --gradient-end: #38bdf8;
+}
+
+@theme inline {
+  --font-sans: 'Geist', 'Geist Fallback', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom gradient utilities */
+.gradient-text {
+  background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.glow {
+  box-shadow: 0 0 20px rgba(124, 111, 247, 0.3), 0 0 40px rgba(56, 189, 248, 0.2);
+}
+
+.glow-text {
+  text-shadow: 0 0 20px rgba(124, 111, 247, 0.5), 0 0 40px rgba(56, 189, 248, 0.3);
+}
